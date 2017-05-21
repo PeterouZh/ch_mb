@@ -1,0 +1,4 @@
+[submodule "SeetaFaceEngine"]
+	path = SeetaFaceEngine
+	url = git@github.com:pengzhou93/SeetaFaceEngine.git
+	branch = face_chmb
