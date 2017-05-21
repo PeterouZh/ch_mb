@@ -1,4 +1,6 @@
 *.jpg
+!Aaron_Peirsol_0001.jpg
+!Aaron_Peirsol_0004.jpg
 build/
 OpenFace/
 openbr/
