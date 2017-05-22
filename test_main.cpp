@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
   // std::string img1_file = "../Aaron_Peirsol_0001.jpg";
   // std::string img2_file = "../Aaron_Peirsol_0004.jpg";
 
-  std::string det_model = "../SeetaFaceEngine/FaceIdentification/model/seeta_fd_frontal_v1.0.bin";
-  std::string align_model = "../SeetaFaceEngine/FaceIdentification/model/seeta_fa_v1.1.bin";
+  std::string det_model = "../SeetaFaceEngine/FaceDetection/model/seeta_fd_frontal_v1.0.bin";
+  std::string align_model = "../SeetaFaceEngine/FaceAlignment/model/seeta_fa_v1.1.bin";
   std::string id_model = "../SeetaFaceEngine/FaceIdentification/model/seeta_fr_v1.0.bin";
 
   cv::Mat img1 = cv::imread(img1_file.c_str());
