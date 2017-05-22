@@ -1,0 +1,4 @@
+[submodule "cmssFaceEngine"]
+	path = cmssFaceEngine
+	url = git@github.com:pengzhou93/cmssFaceEngine.git
+	branch = face_chmb_cmss
