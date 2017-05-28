@@ -20,8 +20,6 @@ int main(int argc, char *argv[])
 {
   std::string img1_file = "../1.jpg";
   std::string img2_file = "../2.jpg";
-  // std::string img1_file = "../Aaron_Peirsol_0001.jpg";
-  // std::string img2_file = "../Aaron_Peirsol_0004.jpg";
 
   std::string det_model = "../cmssFaceEngine/FaceDetection/model/detection.model";
   std::string align_model = "../cmssFaceEngine/FaceAlignment/model/alignment.model";
@@ -123,6 +121,6 @@ int main(int argc, char *argv[])
 
   float sim = CMSS_FR_CalcSimilarity(faceFea[0].data(), faceFea2[0].data(),
 				     featureInfo.featureSize);
-  std::cout << "Similarity : " << sim << std::endl;
+  std::cout << "Similarity : " << sim << std::endl << std::endl;
   return 0;
 }

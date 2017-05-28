@@ -52,7 +52,9 @@ int CMSS_FD_GetFaceResult(const cv::Mat& src,
   if (!check_image_and_convert_to_gray(src, img_gray))
     return -1;
 
-  if (faceParam.pyramid_scale < 0 || faceParam.pyramid_scale > 1)
+  if (faceParam.pyramid_scale < 0 || faceParam.pyramid_scale > 1 ||
+      faceParam.min_face_size < 20 || faceParam.slide_wnd_step_x <= 0 ||
+      faceParam.slide_wnd_step_y <=0 || faceParam.score_thresh < 0)
     return -2;
   
   if (!is_exist(faceParam.modelpath)) {
@@ -96,6 +98,11 @@ int CMSS_FA_GetFacePointLocation(const cv::Mat& src,
   cv::Mat img_gray;
   if (!check_image_and_convert_to_gray(src, img_gray))
     return -1;
+
+  if (faceParam.pyramid_scale < 0 || faceParam.pyramid_scale > 1 ||
+      faceParam.min_face_size < 20 || faceParam.slide_wnd_step_x <= 0 ||
+      faceParam.slide_wnd_step_y <=0 || faceParam.score_thresh < 0)
+    return -2;
 
   if (!is_exist(faceParam.modelpath)) {
     std::cout<<"Detection model: " << faceParam.modelpath << " not exist.\n";

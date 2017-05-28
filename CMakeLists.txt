@@ -21,6 +21,7 @@ add_subdirectory("./cmssFaceEngine/FaceAlignment")
 add_subdirectory("./cmssFaceEngine/FaceIdentification")
 
 # Build face_recogniton lib
+message("Build face recognition lib")
 include_directories(.)
 include_directories("./cmssFaceEngine")
 add_library(face_recognition SHARED ./CMSS_FaceRecognize.cpp)
