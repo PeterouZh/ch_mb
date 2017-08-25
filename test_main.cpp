@@ -18,10 +18,14 @@ void plot_rect(cv::Mat img_rect, FDRESULT faceInfo)
 
 int main(int argc, char *argv[])
 {
+  
   std::string img1_file = "../1.jpg";
   std::string img2_file = "../2.jpg";
+  if (argc == 2) {
+    img1_file = argv[1];
+  }
 
-  std::string det_model = "../cmssFaceEngine/FaceDetection/model/detection.model";
+  std::string det_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/mmod_network.dat";
   std::string align_model = "../cmssFaceEngine/FaceAlignment/model/alignment.model";
   std::string id_model = "../cmssFaceEngine/FaceIdentification/model/recognition.model";
 
@@ -47,7 +51,7 @@ int main(int argc, char *argv[])
     cv::imshow("detection2", img_rect2);
     cv::waitKey(0);
   }
-
+  return 0;
   // ****************************************
   // test alignment
   // ****************************************
@@ -56,6 +60,7 @@ int main(int argc, char *argv[])
   FARESULT facePointInfo2;
   CMSS_FA_GetFacePointLocation(img1, faceParam, facePointParam, facePointInfo);
   CMSS_FA_GetFacePointLocation(img2, faceParam, facePointParam, facePointInfo2);
+
   
   cv::Mat img_point = img1.clone();
   cv::Mat img_point2 = img2.clone();

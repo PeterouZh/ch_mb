@@ -1,5 +1,11 @@
 #include <opencv2/opencv.hpp>
 
+#include <dlib/dnn.h>
+#include <dlib/data_io.h>
+#include <dlib/image_processing.h>
+#include <dlib/opencv/cv_image.h>
+#include <dlib/timing.h>
+
 #include "./CMSS_FaceRecognize.h"
 #include "FaceIdentification/include/face_identification.h"
 #include "FaceIdentification/include/recognizer.h"
@@ -44,50 +50,72 @@ bool is_exist(std::string file)
   return true;
 }
 
+namespace fd{
+  using namespace dlib;
+  // c++11
+  template <long num_filters, typename SUBNET> using con5d = con<num_filters,5,5,2,2,SUBNET>;
+  template <long num_filters, typename SUBNET> using con5  = con<num_filters,5,5,1,1,SUBNET>;
+
+  template <typename SUBNET> using downsampler  =
+    relu<affine<con5d<32, relu<affine<con5d<32, relu<affine<con5d<16,SUBNET>>>>>>>>>;
+  template <typename SUBNET> using rcon5  = relu<affine<con5<45,SUBNET>>>;
+  using net_type =
+    loss_mmod<con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<input_rgb_image_pyramid<pyramid_down<6>>>>>>>>;
+  static bool init_flag = false;
+}
+
 int CMSS_FD_GetFaceResult(const cv::Mat& src,
 			  FDPARAM& faceParam,
 			  FDRESULT& faceInfo)
 {
-  cv::Mat img_gray;
-  if (!check_image_and_convert_to_gray(src, img_gray))
-    return -1;
-
-  if (faceParam.pyramid_scale < 0 || faceParam.pyramid_scale > 1 ||
-      faceParam.min_face_size < 20 || faceParam.slide_wnd_step_x <= 0 ||
-      faceParam.slide_wnd_step_y <=0 || faceParam.score_thresh < 0)
-    return -2;
-  
+  using namespace dlib;
   if (!is_exist(faceParam.modelpath)) {
     std::cout<<"Detection model: " << faceParam.modelpath << " not exist.\n";
     return -3;
   }
-  cmss::FaceDetection detector(faceParam.modelpath);
-  detector.SetMinFaceSize(faceParam.min_face_size);
-  detector.SetMaxFaceSize(faceParam.max_face_size);
-  detector.SetWindowStep(faceParam.slide_wnd_step_x, faceParam.slide_wnd_step_y);
-  detector.SetImagePyramidScaleFactor(faceParam.pyramid_scale);
-  detector.SetScoreThresh(faceParam.score_thresh);
-
-  cmss::ImageData img_data_gray(img_gray.cols, img_gray.rows, img_gray.channels());
-  img_data_gray.data = img_gray.data;
-  std::vector<cmss::FaceInfo> gallery_faces = detector.Detect(img_data_gray);
-  if (gallery_faces.size() == 0) {
-    return 0;
-  } else {
-    FACELOC temp_loc;
-    for (int i = 0; i < gallery_faces.size(); ++i) {
-      temp_loc.faceRect.x = gallery_faces[i].bbox.x;
-      temp_loc.faceRect.y = gallery_faces[i].bbox.y;
-      temp_loc.faceRect.width = gallery_faces[i].bbox.width;
-      temp_loc.faceRect.height = gallery_faces[i].bbox.height;
-      temp_loc.roll = gallery_faces[i].roll;
-      temp_loc.pitch = gallery_faces[i].pitch;
-      temp_loc.yaw = gallery_faces[i].yaw;
-      temp_loc.score = gallery_faces[i].score;
-      faceInfo.push_back(temp_loc);
-    }
-    return 1;
+  static fd::net_type net;
+  if (!fd::init_flag) {
+    deserialize(faceParam.modelpath) >> net;
+    fd::init_flag = true;
   }
+  if (!src.data)
+    return -1;
+  matrix<rgb_pixel> img;
+  cv_image<bgr_pixel> img_bgr(src);
+  assign_image(img, img_bgr);
+  int count = 0;
+  while(img.size() < 200*200) {
+    pyramid_up(img, pyramid_down<2>()); // up scale 2 times
+    count += 1;
+  }
+  float ratio = powf(2, count);
+#ifdef TIMING
+  using namespace dlib::timing;
+  start(1,"Detection :");
+#endif
+  auto dets = net(img);
+#ifdef TIMING
+  stop(1);
+  dlib::timing::print();
+  dlib::timing::clear();
+#endif
+  for (auto&& d : dets) {
+    FACELOC temp_loc;
+    temp_loc.faceRect.x = d.rect.left() / ratio;
+    temp_loc.faceRect.y = d.rect.top() / ratio;
+    temp_loc.faceRect.width = d.rect.width() / ratio;
+    temp_loc.faceRect.height = d.rect.height() / ratio;
+    temp_loc.roll = -1;
+    temp_loc.pitch = -1;
+    temp_loc.yaw = -1;
+    temp_loc.score = d.detection_confidence;
+    faceInfo.push_back(temp_loc);
+  }
+  if (dets.size() > 0)
+    return 1;
+  else
+    return 0;
+
 }
 
 int CMSS_FA_GetFacePointLocation(const cv::Mat& src,
@@ -212,6 +240,6 @@ float CMSS_FR_CalcSimilarity (float* fea1,
     return -1;
   }
   return simd_dot(fea1, fea2, len)
-	  / (sqrt(simd_dot(fea1, fea1, len))
-	  * sqrt(simd_dot(fea2, fea2, len)));
+    / (sqrt(simd_dot(fea1, fea1, len))
+       * sqrt(simd_dot(fea2, fea2, len)));
 }
