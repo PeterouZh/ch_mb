@@ -2268,6 +2268,15 @@ namespace dlib
             return temp_label;
         }
 
+        const output_label_type& operator() (const input_type& x, const double adjust_threshold)
+        {
+	  to_tensor(&x, &x+1, temp_tensor);
+	  subnetwork.forward(temp_tensor);
+	  const dimpl::subnet_wrapper<subnet_type> wsub(subnetwork);
+	  loss.to_label(temp_tensor, wsub, &temp_label, adjust_threshold);
+	  return temp_label;
+        }
+
         template <typename iterable_type>
         std::vector<output_label_type> operator() (
             const iterable_type& data,

@@ -25,13 +25,14 @@ extern "C"{
   /*人脸检测参数*/
   typedef struct facedetectionParam
   {
-    int min_face_size;      /*允许检测最小人脸大小, 不小于20 */ 
-    int max_face_size;      /*允许检测最大人脸大小, 无限制,可以设为默认值 -1 */
-    int slide_wnd_step_x;   /*滑动窗口x步长, 通常设为 4 */
-    int slide_wnd_step_y;   /*滑动窗口y步长, 通常设为 4 */
+    int min_img_height;
+    int min_img_width;
+    double adjust_threshold;	/* Only objects with a detection_confidence > adjust_threshold are output */
+    /* int slide_wnd_step_x;   /\*滑动窗口x步长, 通常设为 4 *\/ */
+    /* int slide_wnd_step_y;   /\*滑动窗口y步长, 通常设为 4 *\/ */
 		
-    double pyramid_scale;      /*金字塔缩小尺度, 取值范围 0~1*/
-    double score_thresh;       /*得分阈值, 典型取值 0.95, 2, 4*/
+    /* double pyramid_scale;      /\*金字塔缩小尺度, 取值范围 0~1*\/ */
+    /* double score_thresh;       /\*得分阈值, 典型取值 0.95, 2, 4*\/ */
 	
     char* modelpath;        /*人脸检测模型路径*/
   }FDPARAM;

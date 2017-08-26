@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
     img1_file = argv[1];
   }
 
-  std::string det_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/mmod_network.dat";
-  std::string align_model = "../cmssFaceEngine/FaceAlignment/model/alignment.model";
+  std::string det_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/mmod_network.dat.dlib";
+  std::string align_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/shape_predictor_68_face_landmarks.dat";
   std::string id_model = "../cmssFaceEngine/FaceIdentification/model/recognition.model";
 
   cv::Mat img1 = cv::imread(img1_file.c_str());
@@ -34,7 +34,11 @@ int main(int argc, char *argv[])
   // ****************************************
   // test detection
   // ****************************************
-  FDPARAM faceParam = {20, -1, 4, 4, 0.8, 2.0, const_cast< char* >(det_model.c_str())};
+  int min_img_height = 800;
+  int min_img_width = 800;
+  double adjust_threshold = 0;
+  FDPARAM faceParam = {min_img_height, min_img_width,
+		       adjust_threshold, const_cast< char* >(det_model.c_str())};
   FDRESULT faceInfo;
   FDRESULT faceInfo2;
   CMSS_FD_GetFaceResult(img1, faceParam, faceInfo);
@@ -45,13 +49,12 @@ int main(int argc, char *argv[])
     std::cout << "Detect no face.\n";
     return 0;
   } else {
-    plot_rect(img_rect, faceInfo);
-    cv::imshow("detection", img_rect);
-    plot_rect(img_rect2, faceInfo2);
-    cv::imshow("detection2", img_rect2);
-    cv::waitKey(0);
+    // plot_rect(img_rect, faceInfo);
+    // cv::imshow("detection", img_rect);
+    // plot_rect(img_rect2, faceInfo2);
+    // cv::imshow("detection2", img_rect2);
+    // cv::waitKey(0);
   }
-  return 0;
   // ****************************************
   // test alignment
   // ****************************************
@@ -65,7 +68,7 @@ int main(int argc, char *argv[])
   cv::Mat img_point = img1.clone();
   cv::Mat img_point2 = img2.clone();
   for (int j = 0; j < facePointInfo.size(); ++j) {
-    for (int i = 0; i<5; i++) {
+    for (int i = 0; i<68; i++) {
 	cv::circle(img_point, cv::Point(facePointInfo[j].facePointLocation[i].x,
 					facePointInfo[j].facePointLocation[i].y),
 		   2, CV_RGB(0, 255, 0));
@@ -74,9 +77,10 @@ int main(int argc, char *argv[])
 		   2, CV_RGB(0, 255, 0));
     }
   }
-  cv::imshow("alignment", img_point);
-  cv::imshow("alignment2", img_point2);
-  cv::waitKey(0);
+  // cv::imshow("alignment", img_point);
+  // cv::imshow("alignment2", img_point2);
+  // cv::waitKey(0);
+
 
   // ****************************************
   // test crop and extract feature

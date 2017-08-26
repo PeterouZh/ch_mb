@@ -481,7 +481,7 @@ namespace dlib
             const tensor& input_tensor,
             const SUB_TYPE& sub,
             label_iterator iter,
-            double adjust_threshold = 0
+            double adjust_threshold = -1
         ) const;
         /*!
             This function has the same interface as EXAMPLE_LOSS_LAYER_::to_label() except

@@ -8,7 +8,7 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-option(DLIB_USE_CUDA "disable cuda" OFF)
+option(DLIB_USE_CUDA "disable cuda" ON)
 option(TIMING "show testing time" ON)
 add_subdirectory("./dlib")
 

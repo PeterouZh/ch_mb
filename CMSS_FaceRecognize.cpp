@@ -84,7 +84,7 @@ int CMSS_FD_GetFaceResult(const cv::Mat& src,
   cv_image<bgr_pixel> img_bgr(src);
   assign_image(img, img_bgr);
   int count = 0;
-  while(img.size() < 200*200) {
+  while(img.size() < faceParam.min_img_height * faceParam.min_img_width) {
     pyramid_up(img, pyramid_down<2>()); // up scale 2 times
     count += 1;
   }
@@ -93,7 +93,8 @@ int CMSS_FD_GetFaceResult(const cv::Mat& src,
   using namespace dlib::timing;
   start(1,"Detection :");
 #endif
-  auto dets = net(img);
+  double adjust_threshold = faceParam.adjust_threshold;
+  auto dets = net(img, adjust_threshold);
 #ifdef TIMING
   stop(1);
   dlib::timing::print();
@@ -108,7 +109,7 @@ int CMSS_FD_GetFaceResult(const cv::Mat& src,
     temp_loc.roll = -1;
     temp_loc.pitch = -1;
     temp_loc.yaw = -1;
-    temp_loc.score = d.detection_confidence;
+    temp_loc.score = d.detection_confidence * 100.;
     faceInfo.push_back(temp_loc);
   }
   if (dets.size() > 0)
@@ -123,53 +124,50 @@ int CMSS_FA_GetFacePointLocation(const cv::Mat& src,
 				 FAPARAM& facePointParam, 
 				 FARESULT& facePointInfo)
 {
-  cv::Mat img_gray;
-  if (!check_image_and_convert_to_gray(src, img_gray))
-    return -1;
-
-  if (faceParam.pyramid_scale < 0 || faceParam.pyramid_scale > 1 ||
-      faceParam.min_face_size < 20 || faceParam.slide_wnd_step_x <= 0 ||
-      faceParam.slide_wnd_step_y <=0 || faceParam.score_thresh < 0)
-    return -2;
-
+  using namespace dlib;
   if (!is_exist(faceParam.modelpath)) {
     std::cout<<"Detection model: " << faceParam.modelpath << " not exist.\n";
     return -3;
   }
-
-  cmss::ImageData img_data_gray(img_gray.cols, img_gray.rows, img_gray.channels());
-  img_data_gray.data = img_gray.data;
-
   // detection
   FDRESULT face_det;
-  CMSS_FD_GetFaceResult(src, faceParam, face_det);
-  if (face_det.size() == 0) {
-    return 0;
+  int ret = CMSS_FD_GetFaceResult(src, faceParam, face_det);
+  if (face_det.size() <= 0) {
+    return ret;
   }
+  array2d<rgb_pixel> img;
+  cv_image<bgr_pixel> img_bgr(src);
+  assign_image(img, img_bgr);
   // alignment
-  cmss::FaceAlignment point_detector(facePointParam.modelpath.c_str());
+  static shape_predictor sp;
+  static bool init_flag = false;
+  if (!init_flag) {
+    deserialize(facePointParam.modelpath.c_str()) >> sp;
+    init_flag = true;
+  }
+#ifdef TIMING
+  using namespace dlib::timing;
+  start(2,"Landmark :");
+#endif
   for (int i = 0; i < face_det.size(); ++i) {
-    cmss::FaceInfo face_info;
-    face_info.bbox.x = face_det[i].faceRect.x;
-    face_info.bbox.y = face_det[i].faceRect.y;
-    face_info.bbox.width = face_det[i].faceRect.width;
-    face_info.bbox.height = face_det[i].faceRect.height;
-    face_info.roll = face_det[i].roll;
-    face_info.pitch = face_det[i].pitch;
-    face_info.yaw = face_det[i].yaw;
-    face_info.score = face_det[i].score;
-    
-    cmss::FacialLandmark gallery_points[5];
-    point_detector.PointDetectLandmarks(img_data_gray, face_info, gallery_points);
+    dlib::rectangle det(face_det[i].faceRect.x, face_det[i].faceRect.y,
+			face_det[i].faceRect.x + face_det[i].faceRect.width,
+			face_det[i].faceRect.y + face_det[i].faceRect.height);
+    full_object_detection shape = sp(img, det);
     FAPIONTLOC face_and_face_point_loc;
     face_and_face_point_loc.faceLocation = face_det[i];
-    face_and_face_point_loc.facePointNum = 5;
-    for (int j = 0; j < 5; ++j) {
-      cv::Point point(gallery_points[j].x, gallery_points[j].y);
+    face_and_face_point_loc.facePointNum = 68;
+    for (int j = 0; j < 68; ++j) {
+      cv::Point point(shape.part(j).x(), shape.part(j).y());
       face_and_face_point_loc.facePointLocation.push_back(point);
     }
     facePointInfo.push_back(face_and_face_point_loc);
   }
+#ifdef TIMING
+  stop(2);
+  dlib::timing::print();
+  dlib::timing::clear();
+#endif
   return 1;
 }
 
