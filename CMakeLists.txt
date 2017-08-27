@@ -15,17 +15,12 @@ add_subdirectory("./dlib")
 # make install dir
 set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR})
 
-#set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_BUILD_TYPE "Release")
+#set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -std=c++11 -O0 -g -ggdb")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
 
 set(CMAKE_CXX_FLAGS "-Wno-unused-result ${CMAKE_CXX_FLAGS}")
-
-
-add_subdirectory("./cmssFaceEngine/FaceDetection")
-add_subdirectory("./cmssFaceEngine/FaceAlignment")
-add_subdirectory("./cmssFaceEngine/FaceIdentification")
 
 # Build face_recogniton lib
 message("Build face recognition lib")
@@ -33,8 +28,8 @@ include_directories(.)
 include_directories("./cmssFaceEngine")
 #add_library(face_recognition STATIC ./CMSS_FaceRecognize.cpp)
 add_library(face_recognition SHARED ./CMSS_FaceRecognize.cpp)
-target_link_libraries(face_recognition ${OpenCV_LIBS} cmss_facedet_lib
-  cmss_facealign_lib cmss_faceid_lib dlib)
+target_link_libraries(face_recognition ${OpenCV_LIBS} dlib::dlib)
+
 if (TIMING)
   target_compile_definitions(face_recognition PRIVATE TIMING)
 endif()

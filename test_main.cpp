@@ -27,15 +27,15 @@ int main(int argc, char *argv[])
 
   std::string det_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/mmod_network.dat.dlib";
   std::string align_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/shape_predictor_68_face_landmarks.dat";
-  std::string id_model = "../cmssFaceEngine/FaceIdentification/model/recognition.model";
+  std::string id_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/dlib_face_recognition_resnet_model_v1.dat";
 
   cv::Mat img1 = cv::imread(img1_file.c_str());
   cv::Mat img2 = cv::imread(img2_file.c_str());
   // ****************************************
   // test detection
   // ****************************************
-  int min_img_height = 800;
-  int min_img_width = 800;
+  int min_img_height = 200;
+  int min_img_width = 200;
   double adjust_threshold = 0;
   FDPARAM faceParam = {min_img_height, min_img_width,
 		       adjust_threshold, const_cast< char* >(det_model.c_str())};
@@ -49,10 +49,10 @@ int main(int argc, char *argv[])
     std::cout << "Detect no face.\n";
     return 0;
   } else {
-    // plot_rect(img_rect, faceInfo);
-    // cv::imshow("detection", img_rect);
-    // plot_rect(img_rect2, faceInfo2);
-    // cv::imshow("detection2", img_rect2);
+    plot_rect(img_rect, faceInfo);
+    cv::imshow("detection", img_rect);
+    plot_rect(img_rect2, faceInfo2);
+    cv::imshow("detection2", img_rect2);
     // cv::waitKey(0);
   }
   // ****************************************
@@ -77,8 +77,8 @@ int main(int argc, char *argv[])
 		   2, CV_RGB(0, 255, 0));
     }
   }
-  // cv::imshow("alignment", img_point);
-  // cv::imshow("alignment2", img_point2);
+  cv::imshow("alignment", img_point);
+  cv::imshow("alignment2", img_point2);
   // cv::waitKey(0);
 
 
@@ -103,8 +103,6 @@ int main(int argc, char *argv[])
   }
   cv::imshow("crop_face", cropface[0]);
   cv::imshow("crop_face2", cropface2[0]);
-  cv::waitKey(0);
-
   // ****************************************
   // get feature info
   // ****************************************
@@ -116,13 +114,13 @@ int main(int argc, char *argv[])
   // ****************************************
   // caculate similarity
   // ****************************************
-  std::ofstream of_fea("test_main.txt");  
+  std::ofstream of_fea("feature.txt");  
   of_fea << img1_file << "\n";
-  for (int i = 0; i < 2048; ++i) {
+  for (int i = 0; i < featureInfo.featureSize; ++i) {
     of_fea << faceFea[0][i] << "\n";
   }
   of_fea << "\n" << img2_file << "\n";
-  for (int i = 0; i < 2048; ++i) {
+  for (int i = 0; i < featureInfo.featureSize; ++i) {
     of_fea << faceFea2[0][i] << "\n";
   }
   of_fea << "\n";
@@ -131,5 +129,6 @@ int main(int argc, char *argv[])
   float sim = CMSS_FR_CalcSimilarity(faceFea[0].data(), faceFea2[0].data(),
 				     featureInfo.featureSize);
   std::cout << "Similarity : " << sim << std::endl << std::endl;
+  cv::waitKey(0);
   return 0;
 }
