@@ -227,10 +227,13 @@ int CMSS_FR_GetCropFaceandExtraFeature(const cv::Mat& src,
 				       FEARESULT&  faceFea)
 {
   using namespace dlib;
-  int ret = CMSS_FA_GetFacePointLocation(src, faceParam, facePointParam, facePointInfo);
-  if (ret <= 0) {
-    return ret;
+  if (facePointInfo.size() <= 0) {
+    int ret = CMSS_FA_GetFacePointLocation(src, faceParam, facePointParam, facePointInfo);    
+    if (ret <= 0) {
+      return ret;
+    }
   }
+
   static fr::anet_type net;
   static bool init_flag = false;
   if (!init_flag) {
@@ -296,4 +299,49 @@ float CMSS_FR_CalcSimilarity (float* fea1,
     sum += powf(fea1[i] - fea2[i], 2);
   }
   return sqrtf(sum);
+}
+
+int CMSS_FA_GetFacePointLocationGivenFaceLocation(const cv::Mat& src,
+						  FDRESULT& faceInfo,
+						  FAPARAM& facePointParam, 
+						  FARESULT& facePointInfo)
+{
+  using namespace dlib;
+  // detection
+  FDRESULT face_det = faceInfo;
+  array2d<rgb_pixel> img;
+  cv_image<bgr_pixel> img_bgr(src);
+  assign_image(img, img_bgr);
+  // alignment
+  static shape_predictor sp;
+  static bool init_flag = false;
+  if (!init_flag) {
+    deserialize(facePointParam.modelpath.c_str()) >> sp;
+    std::cout << "\tInit landmark\n";
+    init_flag = true;
+  }
+#ifdef TIMING
+  using namespace dlib::timing;
+  start(2,"Landmark");
+#endif
+  for (int i = 0; i < face_det.size(); ++i) {
+    dlib::rectangle det(face_det[i].faceRect.x, face_det[i].faceRect.y,
+			face_det[i].faceRect.x + face_det[i].faceRect.width,
+			face_det[i].faceRect.y + face_det[i].faceRect.height);
+    full_object_detection shape = sp(img, det);
+    FAPIONTLOC face_and_face_point_loc;
+    face_and_face_point_loc.faceLocation = face_det[i];
+    face_and_face_point_loc.facePointNum = 68;
+    for (int j = 0; j < 68; ++j) {
+      cv::Point point(shape.part(j).x(), shape.part(j).y());
+      face_and_face_point_loc.facePointLocation.push_back(point);
+    }
+    facePointInfo.push_back(face_and_face_point_loc);
+  }
+#ifdef TIMING
+  stop(2);
+  dlib::timing::print();
+  dlib::timing::clear();
+#endif
+  return 1;
 }

@@ -24,10 +24,11 @@ int main(int argc, char *argv[])
   if (argc == 2) {
     img1_file = argv[1];
   }
-
+  // distance less than fr_threshold can be considered as the same person
+  float fr_threshold = 0.628; 
   std::string det_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/mmod_network.dat.dlib";
-  std::string align_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/shape_predictor_68_face_landmarks.dat";
-  std::string id_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/dlib_face_recognition_resnet_model_v1.dat";
+  std::string align_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/landmark";
+  std::string id_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/metric_network_renset.dat.dlib";
 
   cv::Mat img1 = cv::imread(img1_file.c_str());
   cv::Mat img2 = cv::imread(img2_file.c_str());
@@ -128,7 +129,9 @@ int main(int argc, char *argv[])
 
   float sim = CMSS_FR_CalcSimilarity(faceFea[0].data(), faceFea2[0].data(),
 				     featureInfo.featureSize);
-  std::cout << "Similarity : " << sim << std::endl << std::endl;
+  std::cout << "Similarity = " << sim 
+	    << " < "  << fr_threshold << "[same person]" 
+	    << std::endl << std::endl;
   cv::waitKey(0);
   return 0;
 }

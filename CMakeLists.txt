@@ -8,7 +8,7 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-option(DLIB_USE_CUDA "disable cuda" ON)
+option(DLIB_USE_CUDA "using cuda" ON)
 option(TIMING "show testing time" ON)
 add_subdirectory("./dlib")
 
@@ -25,7 +25,6 @@ set(CMAKE_CXX_FLAGS "-Wno-unused-result ${CMAKE_CXX_FLAGS}")
 # Build face_recogniton lib
 message("Build face recognition lib")
 include_directories(.)
-include_directories("./cmssFaceEngine")
 #add_library(face_recognition STATIC ./CMSS_FaceRecognize.cpp)
 add_library(face_recognition SHARED ./CMSS_FaceRecognize.cpp)
 target_link_libraries(face_recognition ${OpenCV_LIBS} dlib::dlib)
@@ -44,6 +43,9 @@ link_directories(build)
 add_executable(test_main.bin ./test_main.cpp)
 target_link_libraries(test_main.bin face_recognition ${OpenCV_LIBS})
 add_test(test_main test_main.bin)
+
+add_executable(extract_features.bin ./extract_features.cpp)
+target_link_libraries(extract_features.bin face_recognition ${OpenCV_LIBS})
 
 
 # add_executable("test_face_verification.bin" "./test_face_verification.cpp")
