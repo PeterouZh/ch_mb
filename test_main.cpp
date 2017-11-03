@@ -19,14 +19,15 @@ void plot_rect(cv::Mat img_rect, FDRESULT faceInfo)
 int main(int argc, char *argv[])
 {
   
-  std::string img1_file = "../1.jpg";
-  std::string img2_file = "../2.jpg";
+  std::string img1_file = "1.jpg";
+  std::string img2_file = "2.jpg";
   if (argc == 2) {
     img1_file = argv[1];
   }
   // distance less than fr_threshold can be considered as the same person
   float fr_threshold = 0.628; 
   std::string det_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/mmod_network.dat.dlib";
+  // std::string det_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/mmod_network.dat.dlib";
   std::string align_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/landmark";
   std::string id_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/metric_network_renset.dat.dlib";
 
@@ -54,7 +55,8 @@ int main(int argc, char *argv[])
     cv::imshow("detection", img_rect);
     plot_rect(img_rect2, faceInfo2);
     cv::imshow("detection2", img_rect2);
-    // cv::waitKey(0);
+    cv::waitKey(0);
+//    return 0;
   }
   // ****************************************
   // test alignment

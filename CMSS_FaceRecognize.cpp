@@ -45,17 +45,28 @@ bool is_exist(std::string file)
 }
 
 namespace fd {
-  using namespace dlib;
+    using namespace dlib;
   // c++11
-  template <long num_filters, typename SUBNET> using con5d = con<num_filters,5,5,2,2,SUBNET>;
-  template <long num_filters, typename SUBNET> using con5  = con<num_filters,5,5,1,1,SUBNET>;
+    template <long num_filters, typename SUBNET> using con5d = con<num_filters,5,5,2,2,SUBNET>;
+    template <long num_filters, typename SUBNET> using con5  = con<num_filters,5,5,1,1,SUBNET>;
 
-  template <typename SUBNET> using downsampler  =
+    template <typename SUBNET> using downsampler  =
     relu<affine<con5d<32, relu<affine<con5d<32, relu<affine<con5d<16,SUBNET>>>>>>>>>;
-  template <typename SUBNET> using rcon5  = relu<affine<con5<45,SUBNET>>>;
-  using net_type =
+    template <typename SUBNET> using rcon5  = relu<affine<con5<45,SUBNET>>>;
+    using net_type =
     loss_mmod<con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<input_rgb_image_pyramid<pyramid_down<6>>>>>>>>;
-  static bool init_flag = false;
+
+//template <long num_filters, typename SUBNET> using con5d = con<num_filters,3,3,2,2,SUBNET>;
+//template <long num_filters, typename SUBNET> using con5  = con<num_filters,3,3,1,1,SUBNET>;
+//
+//template <typename SUBNET> using downsampler =
+//  relu<affine<con5d<64, relu<affine<con5d<32, relu<affine<con5d<16,SUBNET>>>>>>>>>;
+//template <typename SUBNET> using rcon5  = relu<affine<con5<45,SUBNET>>>;
+//
+//using net_type =
+//  loss_mmod<con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<input_rgb_image_pyramid<pyramid_down<6>>>>>>>>;
+
+    static bool init_flag = false;
 }
 
 int CMSS_FD_GetFaceResult(const cv::Mat& src,

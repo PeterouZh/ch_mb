@@ -8,14 +8,14 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-option(DLIB_USE_CUDA "using cuda" ON)
+option(DLIB_USE_CUDA "using cuda" OFF)
 option(TIMING "show testing time" ON)
 add_subdirectory("./dlib")
 
 # make install dir
 set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR})
 
-set(CMAKE_BUILD_TYPE "Release")
+#set(CMAKE_BUILD_TYPE "Release")
 #set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -std=c++11 -O0 -g -ggdb")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -std=c++11 -O2")

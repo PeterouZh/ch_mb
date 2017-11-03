@@ -1,3 +1,5 @@
+cmake-build*/
+feature.txt
 models/
 lfw/
 fddb.tar.gz
