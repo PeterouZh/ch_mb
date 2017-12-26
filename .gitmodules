@@ -1,4 +1,4 @@
-[submodule "cmssFaceEngine"]
-	path = cmssFaceEngine
-	url = git@github.com:pengzhou93/cmssFaceEngine.git
-	branch = face_chmb_cmss
+[submodule "darknet"]
+	path = darknet
+	url = https://github.com/pengzhou93/darknet.git
+	branch = yolo-face
