@@ -1,6 +1,7 @@
+darknet/
 cmake-build*/
 feature.txt
-models/
+models
 lfw/
 fddb.tar.gz
 fddb/

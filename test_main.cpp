@@ -26,21 +26,22 @@ int main(int argc, char *argv[])
   }
   // distance less than fr_threshold can be considered as the same person
   float fr_threshold = 0.628; 
-  std::string det_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/mmod_network.dat.dlib";
+  std::string det_model = "models/tiny-yolo-v3.backup";
+  std::string cfg_model = "models/tiny-yolo-test-v3.cfg";
   // std::string det_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/mmod_network.dat.dlib";
-  std::string align_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/landmark";
-  std::string id_model = "/home/shhs/usr/soft/dlib/examples/build/face_det/metric_network_renset.dat.dlib";
+  std::string align_model = "models/landmark";
+  std::string id_model = "models/metric_network_renset.dat.dlib";
 
   cv::Mat img1 = cv::imread(img1_file.c_str());
   cv::Mat img2 = cv::imread(img2_file.c_str());
   // ****************************************
   // test detection
   // ****************************************
-  int min_img_height = 200;
-  int min_img_width = 200;
-  double adjust_threshold = 0;
-  FDPARAM faceParam = {min_img_height, min_img_width,
-		       adjust_threshold, const_cast< char* >(det_model.c_str())};
+//  int min_img_height = 300;
+//  int min_img_width = 300;
+  float adjust_threshold = 0.3;
+  float nms = 0.3;
+  FDPARAM faceParam = {adjust_threshold, nms, det_model.c_str(), cfg_model.c_str()};
   FDRESULT faceInfo;
   FDRESULT faceInfo2;
   CMSS_FD_GetFaceResult(img1, faceParam, faceInfo);
@@ -52,6 +53,8 @@ int main(int argc, char *argv[])
     return 0;
   } else {
     plot_rect(img_rect, faceInfo);
+    cv::namedWindow("detection", cv::WINDOW_NORMAL);
+    cv::namedWindow("detection2", cv::WINDOW_NORMAL);
     cv::imshow("detection", img_rect);
     plot_rect(img_rect2, faceInfo2);
     cv::imshow("detection2", img_rect2);

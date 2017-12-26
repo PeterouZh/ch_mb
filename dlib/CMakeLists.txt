@@ -11,6 +11,7 @@ project(dlib)
 include(cmake_utils/release_build_by_default)
 include(cmake_utils/use_cpp_11.cmake)
 
+
 set(CPACK_PACKAGE_VERSION_MAJOR "19")
 set(CPACK_PACKAGE_VERSION_MINOR "4")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
@@ -232,6 +233,8 @@ if (NOT TARGET dlib)
             if (X11_FOUND)
                # If both X11 and anaconda are installed, it's possible for the
                # anaconda path to appear before /opt/X11, so we remove anaconda.
+
+
                foreach (ITR ${X11_INCLUDE_DIR})
                   if ("${ITR}" MATCHES "(.*)anaconda(.*)")
                      list (REMOVE_ITEM X11_INCLUDE_DIR ${ITR})
@@ -281,6 +284,7 @@ if (NOT TARGET dlib)
          if (socketlib)
             set (dlib_needed_libraries ${dlib_needed_libraries} ${socketlib})
          endif ()
+
 
          if (NOT DLIB_NO_GUI_SUPPORT)
             include(FindX11)
@@ -403,6 +407,7 @@ if (NOT TARGET dlib)
             CHECK_FUNCTION_EXISTS(jpeg_read_header LIBJPEG_IS_GOOD)
          endif()
          if (JPEG_FOUND AND LIBJPEG_IS_GOOD AND NOT APPLE)
+
             include_directories(${JPEG_INCLUDE_DIR})
             set (dlib_needed_libraries ${dlib_needed_libraries} ${JPEG_LIBRARY})
          else()
